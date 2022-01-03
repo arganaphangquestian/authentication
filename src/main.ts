@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,6 +9,7 @@ async function bootstrap() {
     origin: '*',
     credentials: true,
   });
+  app.use(cookieParser());
   const config = new DocumentBuilder()
     .setTitle('Authentication API')
     .setDescription('The authentication API description')
