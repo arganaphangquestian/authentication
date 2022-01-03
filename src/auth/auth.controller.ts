@@ -21,7 +21,7 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() data: Login, @Res() res: Response) {
+  async login(@Body() data: Login, @Res({ passthrough: true }) res: Response) {
     const { access_token, refresh_token } = await this.service.login(
       data.email,
       data.password,
@@ -32,16 +32,22 @@ export class AuthController {
 
   @Post('/register')
   @HttpCode(HttpStatus.OK)
-  async register(@Body() data: Register, @Res() res: Response) {
+  async register(
+    @Body() data: Register,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { access_token, refresh_token } = await this.service.register(data);
     res.cookie('jwt-refresh', refresh_token, { httpOnly: true });
     return { access_token, refresh_token };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt-refresh'))
   @Post('/refresh-token')
   @HttpCode(HttpStatus.OK)
-  async refresh_token(@Req() req: Request, @Res() res: Response) {
+  async refresh_token(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { access_token, refresh_token } = await this.service.refresh_token(
       req.cookies('jwt-refresh'),
     );
@@ -49,10 +55,10 @@ export class AuthController {
     return { access_token, refresh_token };
   }
 
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @UseGuards(AuthGuard('jwt'))
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Res() res: Response) {
+  async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('jwt-refresh');
   }
 
